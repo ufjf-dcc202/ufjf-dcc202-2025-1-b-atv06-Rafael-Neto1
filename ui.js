@@ -3,25 +3,25 @@ const messageDiv = document.getElementById("message");
 
 let selecionado = null;
 
-function desenhar() {
+export function desenhar(tabuleiro) {
     boardDiv.innerHTML = "";
 
-    for (let y = 0; y < board.length; y++) {
-        for (let x = 0; x < board[y].length; x++) {
+    for (let y = 0; y < tabuleiro.length; y++) {
+        for (let x = 0; x < tabuleiro[y].length; x++) {
             const cell = document.createElement("div");
             cell.classList.add("cell");
 
-            if (board[y][x] === null) {
+            if (tabuleiro[y][x] === null) {
                 cell.classList.add("invalid");
-            } else if (board[y][x] === 1) {
+            } else if (tabuleiro[y][x] === 1) {
                 const peg = document.createElement("div");
                 peg.classList.add("peg");
                 cell.appendChild(peg);
 
-                cell.addEventListener("click", () => selecionar(x, y));
-            } else if (board[y][x] === 0) {
+                cell.addEventListener("click", () => selecionarPeca(x, y));
+            } else if (tabuleiro[y][x] === 0) {
                 cell.classList.add("empty");
-                cell.addEventListener("click", () => tentarMover(x, y));
+                cell.addEventListener("click", () => tentarMoverPeca(x, y));
             }
 
             boardDiv.appendChild(cell);
@@ -29,15 +29,23 @@ function desenhar() {
     }
 }
 
-function selecionar(x, y) {
+let tabuleiroAtual;
+let moverFunc;
+
+export function configurar(tabuleiro, moverFunction) {
+    tabuleiroAtual = tabuleiro;
+    moverFunc = moverFunction;
+}
+
+function selecionarPeca(x, y) {
     selecionado = { x, y };
     messageDiv.textContent = `Peça selecionada em (${x}, ${y})`;
 }
 
-function tentarMover(x, y) {
-    if (selecionado) {
-        if (mover(selecionado.x, selecionado.y, x, y)) {
-            desenhar();
+function tentarMoverPeca(x, y) {
+    if (selecionado && moverFunc) {
+        if (moverFunc(tabuleiroAtual, selecionado.x, selecionado.y, x, y)) {
+            desenhar(tabuleiroAtual);
             messageDiv.textContent = "Movimento realizado!";
         } else {
             messageDiv.textContent = "Movimento inválido!";
